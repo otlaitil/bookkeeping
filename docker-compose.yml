@@ -1,0 +1,18 @@
+version: '3.7'
+services:
+  db:
+    image: postgres:13.1-alpine
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    command: mix phx.server
+    depends_on:
+      - db
+    ports:
+      - '4000:4000'
+    volumes:
+      - .:/app

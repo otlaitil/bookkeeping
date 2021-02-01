@@ -1,0 +1,37 @@
+FROM elixir:1.11-alpine
+WORKDIR /app
+
+#
+# Install runtime dependencies
+#
+# Dependency         Required by
+# --------------------------------------------
+# bash               proper shell
+# inotify-tools      phoenix live reloading
+# npm                phoenix asset compilation
+# postgresql-client  ecto
+# postgresql-dev     ecto
+# tzdata             set timezone
+#
+RUN apk add --no-cache \
+ bash \
+ make \
+ gcc \
+ musl-dev \
+ inotify-tools \
+ npm \
+ postgresql-client \
+ postgresql-dev \
+ tzdata
+
+# Set local timezone
+RUN ln -sf /usr/share/zoneinfo/Europe/Helsinki /etc/localtime \
+ && echo "Europe/Helsinki" > /etc/timezone
+
+#COPY mix.exs mix.lock /app/
+
+# Install dependencies
+# RUN mix local.hex --force \
+#   && mix deps.get
+
+CMD []

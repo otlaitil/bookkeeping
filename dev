@@ -1,0 +1,87 @@
+#!/usr/bin/env bash #
+# Boilerplate for creating a simple bash script with some basic strictness.
+#
+
+set -o errexit # Exit when command fails
+set -o pipefail # Exit when command in pipeline fails
+
+# Set $IFS to only newline and tab.
+# See also: http://www.dwheeler.com/essays/filenames-in-shell.html
+IFS=$'\n\t'
+
+# set -o xtrace # Print all executed commands
+
+_usage() {
+	cat <<- HEREDOC
+		usage: ${0} <command>
+
+		These are common Git commands used in various situations:
+
+		   setup
+		   run
+	HEREDOC
+}
+
+_main() {
+	# Print usage if -h or --help given
+	if  [[ "${1:-}" =~ ^-h|--help$  ]]; then
+		_usage
+		exit 0
+	fi
+
+	# Assign _command before nounset
+	local _command="${1}"
+
+	# Exit when accessing undeclared variables
+	set -o nounset
+
+	case "$_command" in
+		build)
+			docker-compose build
+			;;
+
+		init-db)
+			docker-compose run web mix ecto.create
+			docker-compose stop
+			;;
+
+		setup)
+			docker-compose build
+			docker-compose run web mix ecto.create
+			docker-compose stop
+			;;
+
+		clean)
+			docker-compose down
+			;;
+
+		start)
+			docker-compose up --detach
+			;;
+
+		stop)
+			docker-compose stop
+			;;
+
+		sh)
+			docker-compose exec --env PS1="\[\e[37m\][\[\e[m\]\[\e[32m\]dev\[\e[m\]\[\e[37m\]]\[\e[m\] \W \\$ " web bash
+			;;
+
+		run)
+			docker-compose up --detach
+			docker-compose exec --env PS1="\[\e[37m\][\[\e[m\]\[\e[32m\]dev\[\e[m\]\[\e[37m\]]\[\e[m\] \W \\$ " web bash || true
+			docker-compose stop
+			;;
+
+		logs)
+			docker-compose logs --follow web
+			;;
+
+		*)
+			_usage
+			exit 1
+			;;
+	esac
+}
+
+_main "$@"
