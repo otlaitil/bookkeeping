@@ -34,32 +34,18 @@ defmodule Bookkeeping do
     sum_fn = fn
       e, acc ->
         case(e) do
-          # asset -> credit decreases, debit increases
-          %Entry{credit: ^id} when type == :asset ->
+          # asset | expense -> credit decreases, debit increases
+          %Entry{credit: ^id} when type in [:asset, :expense] ->
             acc - e.amount
 
-          %Entry{debit: ^id} when type == :asset ->
+          %Entry{debit: ^id} when type in [:asset, :expense] ->
             acc + e.amount
 
-          # expense -> credit decreases, debit increases
-          %Entry{credit: ^id} when type == :expense ->
-            acc - e.amount
-
-          %Entry{debit: ^id} when type == :expense ->
+          # revenue | liablity -> credit increases, debit decreases
+          %Entry{credit: ^id} when type in [:revenue, :liablity] ->
             acc + e.amount
 
-          # revenue -> credit increases, debit decreases
-          %Entry{credit: ^id} when type == :revenue ->
-            acc + e.amount
-
-          %Entry{debit: ^id} when type == :revenue ->
-            acc - e.amount
-
-          # liablity -> credit increases, debit decreases
-          %Entry{credit: ^id} when type == :liablity ->
-            acc + e.amount
-
-          %Entry{debit: ^id} when type == :liablity ->
+          %Entry{debit: ^id} when type in [:revenue, :liablity] ->
             acc - e.amount
 
           _e ->
