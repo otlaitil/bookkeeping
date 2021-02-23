@@ -20,39 +20,35 @@ defmodule Bookkeeping do
     [{_key, entries}] = :ets.lookup(:bookkeeping, :entries)
 
     entries
-    |> filter_by_date(date)
-    |> balance(ledger)
+    |> Enum.filter(by_date(date))
+    |> Enum.reduce(0, balance(ledger))
   end
 
-  defp filter_by_date(entries, date) do
-    Enum.filter(entries, fn %Entry{date: e_date} -> e_date <= date end)
+  defp by_date(date) do
+    fn %Entry{date: entry_date} -> entry_date <= date end
   end
 
-  # see credits and debits chart from
-  # https://bit.ly/3aILqs9
-  defp balance(entries, %Ledger{id: id, type: type}) do
-    sum_fn = fn
-      e, acc ->
-        case(e) do
-          # asset | expense -> credit decreases, debit increases
-          %Entry{credit: ^id} when type in [:asset, :expense] ->
-            acc - e.amount
+  # see credits and debits chart from https://bit.ly/3aILqs9
+  defp balance(%Ledger{id: id, type: type}) do
+    fn (e, acc) ->
+      case(e) do
+        # asset | expense -> credit decreases, debit increases
+        %Entry{credit: ^id} when type in [:asset, :expense] ->
+          acc - e.amount
 
-          %Entry{debit: ^id} when type in [:asset, :expense] ->
-            acc + e.amount
+        %Entry{debit: ^id} when type in [:asset, :expense] ->
+          acc + e.amount
 
-          # revenue | liablity -> credit increases, debit decreases
-          %Entry{credit: ^id} when type in [:revenue, :liablity] ->
-            acc + e.amount
+        # revenue | liablity -> credit increases, debit decreases
+        %Entry{credit: ^id} when type in [:revenue, :liablity] ->
+          acc + e.amount
 
-          %Entry{debit: ^id} when type in [:revenue, :liablity] ->
-            acc - e.amount
+        %Entry{debit: ^id} when type in [:revenue, :liablity] ->
+          acc - e.amount
 
-          _e ->
-            acc
-        end
+        _e ->
+          acc
+      end
     end
-
-    Enum.reduce(entries, 0, sum_fn)
   end
 end
