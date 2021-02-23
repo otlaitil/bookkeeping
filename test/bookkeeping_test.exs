@@ -3,73 +3,99 @@ defmodule BookkeepingTest do
   doctest Bookkeeping
 
   setup do
-    Bookkeeping.start()
+    {:ok, salaries} =
+      Bookkeeping.Repo.insert(%Bookkeeping.Ledger{
+        name: "Palkat",
+        type: "expense"
+      })
+
+    {:ok, sales} =
+      Bookkeeping.Repo.insert(%Bookkeeping.Ledger{
+        name: "Myynti",
+        type: "revenue"
+      })
+
+    {:ok, trade_receivables} =
+      Bookkeeping.Repo.insert(%Bookkeeping.Ledger{
+        name: "Myyntisaatavat",
+        type: "asset"
+      })
+
+    {:ok, bank} =
+      Bookkeeping.Repo.insert(%Bookkeeping.Ledger{
+        name: "Pankkitili",
+        type: "asset"
+      })
+
+    {:ok, payable_vat} =
+      Bookkeeping.Repo.insert(%Bookkeeping.Ledger{
+        name: "Maksettava ALV",
+        type: "liablity"
+      })
 
     # 1. A sale of 1000 EUR + VAT 24 % = 1240 EUR, 1.1.2021
-    date = ~D[2021-01-01]
+    Bookkeeping.book(%{
+      debit_id: trade_receivables.id,
+      credit_id: sales.id,
+      date: ~U[2021-01-01 00:00:00Z],
+      amount: 1000_00
+    })
 
-    sale_1 = %Entry{
-      debit: Ledger.trade_receivables().id,
-      credit: Ledger.sales().id,
-      amount: 1000,
-      date: date
-    }
-
-    sale_1_vat = %Entry{
-      debit: Ledger.trade_receivables().id,
-      credit: Ledger.payable_vat().id,
-      amount: 240,
-      date: date
-    }
-
-    Bookkeeping.book(sale_1)
-    Bookkeeping.book(sale_1_vat)
+    Bookkeeping.book(%{
+      debit_id: trade_receivables.id,
+      credit_id: payable_vat.id,
+      date: ~U[2021-01-01 00:00:00Z],
+      amount: 240_00
+    })
 
     # 2. Customer pays the bill of 1240 EUR, 7.1.2021
-    date = ~D[2021-01-07]
-
-    received_payment_1 = %Entry{
-      debit: Ledger.bank_account().id,
-      credit: Ledger.trade_receivables().id,
-      amount: 1240,
-      date: date
-    }
-
-    Bookkeeping.book(received_payment_1)
+    Bookkeeping.book(%{
+      debit_id: bank.id,
+      credit_id: trade_receivables.id,
+      date: ~U[2021-01-07 00:00:00Z],
+      amount: 1240_00
+    })
 
     # 3. Paying salary of 950 EUR to user on 8.1.2021
-    date = ~D[2021-01-08]
+    Bookkeeping.book(%{
+      debit_id: salaries.id,
+      credit_id: bank.id,
+      date: ~U[2021-01-07 00:00:00Z],
+      amount: 950_00
+    })
 
-    outgoing_payment_1 = %Entry{
-      debit: Ledger.salaries().id,
-      credit: Ledger.bank_account().id,
-      amount: 950,
-      date: date
+    %{
+      sales: sales,
+      payable_vat: payable_vat,
+      trade_receivables: trade_receivables,
+      salaries: salaries,
+      bank: bank,
+      date: ~U[2021-12-31 00:00:00Z]
     }
-
-    Bookkeeping.book(outgoing_payment_1)
-
-    closing_date = ~D[2021-12-31]
-    %{date: closing_date}
   end
 
-  test "sales", %{date: date} do
-    assert Bookkeeping.account_balance(Ledger.sales(), date) == 1000
+  test "sales", %{sales: sales, date: date} do
+    balance = Bookkeeping.account_balance(sales, date)
+    assert balance == 1000_00
   end
 
-  test "payable vats", %{date: date} do
-    assert Bookkeeping.account_balance(Ledger.payable_vat(), date) == 240
+  test "payable vat", %{payable_vat: payable_vat, date: date} do
+    balance = Bookkeeping.account_balance(payable_vat, date)
+    assert balance == 240_00
   end
 
-  test "bank account", %{date: date} do
-    assert Bookkeeping.account_balance(Ledger.bank_account(), date) == 290
+  test "bank account", %{bank: bank, date: date} do
+    balance = Bookkeeping.account_balance(bank, date)
+    assert balance == 290_00
   end
 
-  test "trade receivables", %{date: date} do
-    assert Bookkeeping.account_balance(Ledger.trade_receivables(), date) == 0
+  test "trade receivables", %{trade_receivables: trade_receivables, date: date} do
+    balance = Bookkeeping.account_balance(trade_receivables, date)
+    assert balance == 0
   end
 
-  test "salaries", %{date: date} do
-    assert Bookkeeping.account_balance(Ledger.salaries(), date) == 950
+  test "salaries", %{salaries: salaries, date: date} do
+    balance = Bookkeeping.account_balance(salaries, date)
+    assert balance == 950_00
   end
 end

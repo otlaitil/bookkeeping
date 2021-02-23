@@ -1,23 +1,19 @@
+import Ecto.Query, only: [from: 2]
+
 defmodule Bookkeeping do
-  @spec start :: boolean()
-  def start do
-    unless Enum.member?(:ets.all(), :bookkeeping) do
-      :ets.new(:bookkeeping, [:public, :named_table])
-      :ets.insert(:bookkeeping, {:entries, []})
-    end
+  def book(attrs) do
+    changeset = Bookkeeping.Entry.new_changeset(attrs)
+    Bookkeeping.Repo.insert(changeset)
   end
 
-  @spec book(Entry.t()) :: Entry.t()
-  def book(%Entry{} = entry) do
-    [{_key, entries}] = :ets.lookup(:bookkeeping, :entries)
-    :ets.insert(:bookkeeping, {:entries, [entry | entries]})
+  def account_balance(%Bookkeeping.Ledger{id: ledger_id} = ledger, date) do
+    query =
+      from(e in Bookkeeping.Entry,
+        where: e.debit_id == ^ledger_id,
+        or_where: e.credit_id == ^ledger_id
+      )
 
-    entry
-  end
-
-  @spec account_balance(Ledger.t(), Date.t()) :: integer()
-  def account_balance(%Ledger{} = ledger, date) do
-    [{_key, entries}] = :ets.lookup(:bookkeeping, :entries)
+    entries = Bookkeeping.Repo.all(query)
 
     entries
     |> Enum.filter(by_date(date))
@@ -30,20 +26,20 @@ defmodule Bookkeeping do
 
   # see credits and debits chart from https://bit.ly/3aILqs9
   defp balance(%Ledger{id: id, type: type}) do
-    fn (e, acc) ->
+    fn e, acc ->
       case(e) do
         # asset | expense -> credit decreases, debit increases
-        %Entry{credit: ^id} when type in [:asset, :expense] ->
+        %Entry{credit: ^id} when type in ["asset", "expense"] ->
           acc - e.amount
 
-        %Entry{debit: ^id} when type in [:asset, :expense] ->
+        %Entry{debit: ^id} when type in ["asset", "expense"] ->
           acc + e.amount
 
         # revenue | liablity -> credit increases, debit decreases
-        %Entry{credit: ^id} when type in [:revenue, :liablity] ->
+        %Entry{credit: ^id} when type in ["revenue", "liablity"] ->
           acc + e.amount
 
-        %Entry{debit: ^id} when type in [:revenue, :liablity] ->
+        %Entry{debit: ^id} when type in ["revenue", "liablity"] ->
           acc - e.amount
 
         _e ->
