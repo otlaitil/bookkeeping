@@ -10,6 +10,8 @@ defmodule Bookkeeping.Application do
     children = [
       # Starts a worker by calling: Testirojekti.Worker.start_link(arg)
       # {Testirojekti.Worker, arg}
+      {Entries.Repo, []},
+      {Ledgers.Repo, []}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
