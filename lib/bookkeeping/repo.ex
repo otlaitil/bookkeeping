@@ -1,4 +1,4 @@
-defmodule Entries.Repo do
+defmodule Bookkeeping.Repo do
   use Ecto.Repo,
     otp_app: :bookkeeping,
     adapter: Ecto.Adapters.Postgres
