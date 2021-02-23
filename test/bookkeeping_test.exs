@@ -9,7 +9,6 @@ defmodule BookkeepingTest do
     date = ~D[2021-01-01]
 
     sale_1 = %Entry{
-      id: 1,
       debit: Ledger.trade_receivables().id,
       credit: Ledger.sales().id,
       amount: 1000,
@@ -17,7 +16,6 @@ defmodule BookkeepingTest do
     }
 
     sale_1_vat = %Entry{
-      id: 2,
       debit: Ledger.trade_receivables().id,
       credit: Ledger.payable_vat().id,
       amount: 240,
@@ -31,7 +29,6 @@ defmodule BookkeepingTest do
     date = ~D[2021-01-07]
 
     received_payment_1 = %Entry{
-      id: 3,
       debit: Ledger.bank_account().id,
       credit: Ledger.trade_receivables().id,
       amount: 1240,
@@ -44,7 +41,6 @@ defmodule BookkeepingTest do
     date = ~D[2021-01-08]
 
     outgoing_payment_1 = %Entry{
-      id: 4,
       debit: Ledger.salaries().id,
       credit: Ledger.bank_account().id,
       amount: 950,
@@ -53,29 +49,27 @@ defmodule BookkeepingTest do
 
     Bookkeeping.book(outgoing_payment_1)
 
-    # date to use in tests to fetch
-    # snapshot
-    date = ~D[2021-12-31]
-    %{date: date}
+    closing_date = ~D[2021-12-31]
+    %{date: closing_date}
   end
 
   test "sales", %{date: date} do
-    assert Bookkeeping.account_balance(:sales, date) == -1000
+    assert Bookkeeping.account_balance(Ledger.sales(), date) == 1000
   end
 
   test "payable vats", %{date: date} do
-    assert Bookkeeping.account_balance(:vats, date) == -240
+    assert Bookkeeping.account_balance(Ledger.payable_vat(), date) == 240
   end
 
   test "bank account", %{date: date} do
-    assert Bookkeeping.account_balance(:bank, date) == 290
+    assert Bookkeeping.account_balance(Ledger.bank_account(), date) == 290
   end
 
   test "trade receivables", %{date: date} do
-    assert Bookkeeping.account_balance(:trade_receivables, date) == 0
+    assert Bookkeeping.account_balance(Ledger.trade_receivables(), date) == 0
   end
 
   test "salaries", %{date: date} do
-    assert Bookkeeping.account_balance(:salaries, date) == 950
+    assert Bookkeeping.account_balance(Ledger.salaries(), date) == 950
   end
 end
