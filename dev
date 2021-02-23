@@ -1,6 +1,4 @@
-#!/usr/bin/env bash #
-# Boilerplate for creating a simple bash script with some basic strictness.
-#
+#!/usr/bin/env bash
 
 set -o errexit # Exit when command fails
 set -o pipefail # Exit when command in pipeline fails
@@ -15,10 +13,12 @@ _usage() {
 	cat <<- HEREDOC
 		usage: ${0} <command>
 
-		These are common Git commands used in various situations:
+		Commands:
 
-		   setup
-		   run
+		   build
+		   test
+		   credo
+		   dialyzer
 	HEREDOC
 }
 
@@ -39,42 +39,17 @@ _main() {
 		build)
 			docker-compose build
 			;;
-
-		init-db)
-			docker-compose run web mix ecto.create
-			docker-compose stop
+		test)
+			docker-compose run --rm dev mix test
 			;;
-
-		setup)
-			docker-compose build
-			docker-compose run web mix ecto.create
-			docker-compose stop
+		credo)
+			docker-compose run --rm dev mix credo
 			;;
-
-		clean)
-			docker-compose down
+		dialyzer)
+			docker-compose run --rm dev mix dialyzer
 			;;
-
-		start)
-			docker-compose up --detach
-			;;
-
-		stop)
-			docker-compose stop
-			;;
-
 		sh)
-			docker-compose exec --env PS1="\[\e[37m\][\[\e[m\]\[\e[32m\]dev\[\e[m\]\[\e[37m\]]\[\e[m\] \W \\$ " web bash
-			;;
-
-		run)
-			docker-compose up --detach
-			docker-compose exec --env PS1="\[\e[37m\][\[\e[m\]\[\e[32m\]dev\[\e[m\]\[\e[37m\]]\[\e[m\] \W \\$ " web bash || true
-			docker-compose stop
-			;;
-
-		logs)
-			docker-compose logs --follow web
+			docker-compose run --env PS1="\[\e[37m\][\[\e[m\]\[\e[32m\]dev\[\e[m\]\[\e[37m\]]\[\e[m\] \W \\$ " dev ash
 			;;
 
 		*)

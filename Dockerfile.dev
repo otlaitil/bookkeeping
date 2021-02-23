@@ -28,10 +28,10 @@ RUN apk add --no-cache \
 RUN ln -sf /usr/share/zoneinfo/Europe/Helsinki /etc/localtime \
  && echo "Europe/Helsinki" > /etc/timezone
 
-#COPY mix.exs mix.lock /app/
+COPY mix.exs mix.lock /app/
 
 # Install dependencies
-# RUN mix local.hex --force \
-#   && mix deps.get
+RUN mix local.hex --force \
+   && mix deps.get
 
 CMD []
