@@ -1,6 +1,5 @@
 defmodule Bookkeeping do
-  defstruct [:ledgers, :entries]
-
+  @spec start :: boolean()
   def start do
     unless Enum.member?(:ets.all(), :bookkeeping) do
       :ets.new(:bookkeeping, [:public, :named_table])
@@ -8,11 +7,15 @@ defmodule Bookkeeping do
     end
   end
 
+  @spec book(Entry.t()) :: Entry.t()
   def book(%Entry{} = entry) do
     [{_key, entries}] = :ets.lookup(:bookkeeping, :entries)
     :ets.insert(:bookkeeping, {:entries, [entry | entries]})
+
+    entry
   end
 
+  @spec account_balance(Ledger.t(), Date.t()) :: integer()
   def account_balance(%Ledger{} = ledger, date) do
     [{_key, entries}] = :ets.lookup(:bookkeeping, :entries)
 
