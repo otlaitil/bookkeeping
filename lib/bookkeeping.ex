@@ -1,8 +1,8 @@
 import Ecto.Query
 
-alias Bookkeeping.Ledger, as: Ledger
-alias Bookkeeping.Entry, as: Entry
-alias Bookkeeping.Repo, as: Repo
+alias Bookkeeping.Ledger
+alias Bookkeeping.Entry
+alias Bookkeeping.Repo
 
 defmodule Bookkeeping do
   def book(attrs) do
