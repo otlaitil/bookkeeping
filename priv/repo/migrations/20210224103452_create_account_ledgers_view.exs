@@ -12,14 +12,14 @@ defmodule Bookkeeping.Repo.Migrations.CreateAccountLedgersView do
           SELECT
                   entries.credit_id,
                   entries.id,
-                  entries.amount
+                  (0 - entries.amount)
           FROM
                   entries
           UNION ALL
           SELECT
                   entries.debit_id,
                   entries.id,
-                  (0 - entries.amount)
+                  entries.amount
           FROM
                   entries;
 
