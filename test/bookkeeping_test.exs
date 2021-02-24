@@ -5,31 +5,31 @@ defmodule BookkeepingTest do
   setup do
     {:ok, salaries} =
       Bookkeeping.Repo.insert(%Bookkeeping.Ledger{
-        name: "Palkat",
+        name: "Salaries",
         type: "expense"
       })
 
     {:ok, sales} =
       Bookkeeping.Repo.insert(%Bookkeeping.Ledger{
-        name: "Myynti",
+        name: "Sales",
         type: "revenue"
       })
 
     {:ok, trade_receivables} =
       Bookkeeping.Repo.insert(%Bookkeeping.Ledger{
-        name: "Myyntisaatavat",
+        name: "Trade Receivables",
         type: "asset"
       })
 
     {:ok, bank} =
       Bookkeeping.Repo.insert(%Bookkeeping.Ledger{
-        name: "Pankkitili",
+        name: "Bank Account",
         type: "asset"
       })
 
     {:ok, payable_vat} =
       Bookkeeping.Repo.insert(%Bookkeeping.Ledger{
-        name: "Maksettava ALV",
+        name: "Payable VAT",
         type: "liablity"
       })
 
@@ -56,11 +56,11 @@ defmodule BookkeepingTest do
       amount: 1240_00
     })
 
-    # 3. Paying salary of 950 EUR to user on 8.1.2021
+    # 3. Paying salary of 950 EUR to user, 8.1.2021
     Bookkeeping.book(%{
       debit_id: salaries.id,
       credit_id: bank.id,
-      date: ~U[2021-01-07 00:00:00Z],
+      date: ~U[2021-01-08 00:00:00Z],
       amount: 950_00
     })
 

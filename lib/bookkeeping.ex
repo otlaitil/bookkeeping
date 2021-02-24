@@ -33,11 +33,11 @@ defmodule Bookkeeping do
         %Entry{debit_id: ^ledger_id} when ledger_type in ["asset", "expense"] ->
           acc + e.amount
 
-        # revenue | liablity -> credit increases, debit decreases
-        %Entry{credit_id: ^ledger_id} when ledger_type in ["revenue", "liablity"] ->
+        # revenue | equity | liablity -> credit increases, debit decreases
+        %Entry{credit_id: ^ledger_id} when ledger_type in ["revenue", "equity", "liablity"] ->
           acc + e.amount
 
-        %Entry{debit_id: ^ledger_id} when ledger_type in ["revenue", "liablity"] ->
+        %Entry{debit_id: ^ledger_id} when ledger_type in ["revenue", "equity", "liablity"] ->
           acc - e.amount
 
         _e ->
