@@ -1,19 +1,21 @@
-import Ecto.Query, only: [from: 2]
+import Ecto.Query
+
+alias Bookkeeping.Ledger, as: Ledger
+alias Bookkeeping.Entry, as: Entry
+alias Bookkeeping.Repo, as: Repo
 
 defmodule Bookkeeping do
   def book(attrs) do
-    changeset = Bookkeeping.Entry.new_changeset(attrs)
-    Bookkeeping.Repo.insert(changeset)
+    changeset = Entry.new_changeset(attrs)
+    Repo.insert(changeset)
   end
 
-  def account_balance(%Bookkeeping.Ledger{id: ledger_id} = ledger, date) do
-    query =
-      from(e in Bookkeeping.Entry,
-        where: e.debit_id == ^ledger_id,
-        or_where: e.credit_id == ^ledger_id
-      )
-
-    entries = Bookkeeping.Repo.all(query)
+  def account_balance(%Ledger{id: ledger_id} = ledger, date) do
+    entries =
+      Entry
+      |> where(debit_id: ^ledger_id)
+      |> or_where(credit_id: ^ledger_id)
+      |> Repo.all()
 
     entries
     |> Enum.filter(by_date(date))
@@ -25,21 +27,21 @@ defmodule Bookkeeping do
   end
 
   # see credits and debits chart from https://bit.ly/3aILqs9
-  defp balance(%Ledger{id: id, type: type}) do
+  defp balance(%Ledger{id: ledger_id, type: ledger_type}) do
     fn e, acc ->
       case(e) do
         # asset | expense -> credit decreases, debit increases
-        %Entry{credit: ^id} when type in ["asset", "expense"] ->
+        %Entry{credit_id: ^ledger_id} when ledger_type in ["asset", "expense"] ->
           acc - e.amount
 
-        %Entry{debit: ^id} when type in ["asset", "expense"] ->
+        %Entry{debit_id: ^ledger_id} when ledger_type in ["asset", "expense"] ->
           acc + e.amount
 
         # revenue | liablity -> credit increases, debit decreases
-        %Entry{credit: ^id} when type in ["revenue", "liablity"] ->
+        %Entry{credit_id: ^ledger_id} when ledger_type in ["revenue", "liablity"] ->
           acc + e.amount
 
-        %Entry{debit: ^id} when type in ["revenue", "liablity"] ->
+        %Entry{debit_id: ^ledger_id} when ledger_type in ["revenue", "liablity"] ->
           acc - e.amount
 
         _e ->
