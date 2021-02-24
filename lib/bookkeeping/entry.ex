@@ -3,8 +3,8 @@ defmodule Bookkeeping.Entry do
   import Ecto.Changeset
 
   schema "entries" do
-    belongs_to(:debit, Bookkeeping.Ledger)
-    belongs_to(:credit, Bookkeeping.Ledger)
+    belongs_to(:debit, Bookkeeping.Account)
+    belongs_to(:credit, Bookkeeping.Account)
 
     field(:amount, :integer)
     field(:date, :naive_datetime)

@@ -1,7 +1,7 @@
-defmodule Bookkeeping.Ledger do
+defmodule Bookkeeping.Account do
   use Ecto.Schema
 
-  schema "ledgers" do
+  schema "accounts" do
     field(:type, :string)
     field(:name, :string)
 
