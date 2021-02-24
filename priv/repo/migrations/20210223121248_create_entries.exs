@@ -10,5 +10,12 @@ defmodule Bookkeeping.Repo.Migrations.CreateEntries do
 
       timestamps()
     end
+
+    create(
+      constraint("entries", "entry_amount_must_be_positive",
+        check: "amount > 0",
+        comment: "Entry amount must be positive."
+      )
+    )
   end
 end
