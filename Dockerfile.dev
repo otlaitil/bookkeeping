@@ -32,6 +32,6 @@ COPY mix.exs mix.lock /app/
 
 # Install dependencies
 RUN mix local.hex --force \
-   && mix deps.get
+   && mix do deps.get, deps.compile
 
 CMD []

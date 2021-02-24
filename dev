@@ -15,6 +15,7 @@ _usage() {
 
 		Commands:
 
+		   run
 		   build
 		   test
 		   credo
@@ -38,6 +39,10 @@ _main() {
 	case "$_command" in
 		build)
 			docker-compose build
+			;;
+		run)
+			shift
+			docker-compose run --rm dev "$@"
 			;;
 		test)
 			docker-compose run --rm dev mix test

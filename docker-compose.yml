@@ -5,5 +5,12 @@ services:
       context: .
       dockerfile: Dockerfile.dev
     command: mix test
+    depends_on:
+      - db
     volumes:
       - .:/app
+    environment:
+      DB_HOST: db
+  db:
+    image: postgres:13-alpine
+

@@ -14,7 +14,8 @@ defmodule Bookkeeping.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger]
+      extra_applications: [:logger],
+      mod: {Bookkeeping.Application, []}
     ]
   end
 
@@ -22,7 +23,9 @@ defmodule Bookkeeping.MixProject do
   defp deps do
     [
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
-      {:credo, "~> 1.5", only: [:dev, :test], runtime: false}
+      {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
+      {:ecto_sql, "~> 3.5"},
+      {:postgrex, ">= 0.0.0"}
     ]
   end
 end
