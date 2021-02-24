@@ -11,6 +11,9 @@ defmodule Bookkeeping.Repo.Migrations.CreateEntries do
       timestamps()
     end
 
+    create(index("entries", [:debit_id]))
+    create(index("entries", [:credit_id]))
+
     create(
       constraint("entries", "entry_amount_must_be_positive",
         check: "amount > 0",
