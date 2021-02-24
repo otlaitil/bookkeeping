@@ -15,15 +15,11 @@ defmodule Bookkeeping do
       Entry
       |> where(debit_id: ^ledger_id)
       |> or_where(credit_id: ^ledger_id)
+      |> where([e], e.date <= ^date)
       |> Repo.all()
 
     entries
-    |> Enum.filter(by_date(date))
     |> Enum.reduce(0, balance(ledger))
-  end
-
-  defp by_date(date) do
-    fn %Entry{date: entry_date} -> entry_date <= date end
   end
 
   # see credits and debits chart from https://bit.ly/3aILqs9
