@@ -1,5 +1,5 @@
 defmodule BookkeepingTest do
-  use ExUnit.Case
+  use Bookkeeping.RepoCase
   doctest Bookkeeping
 
   setup do
@@ -69,33 +69,32 @@ defmodule BookkeepingTest do
       payable_vat: payable_vat,
       trade_receivables: trade_receivables,
       salaries: salaries,
-      bank: bank,
-      date: ~U[2021-12-31 00:00:00Z]
+      bank: bank
     }
   end
 
-  test "sales", %{sales: sales, date: date} do
-    balance = Bookkeeping.account_balance(sales, date)
-    assert balance == 1000_00
+  test "sales", %{sales: sales} do
+    balance = Bookkeeping.account_balance(sales)
+    assert balance == -1000_00
   end
 
-  test "payable vat", %{payable_vat: payable_vat, date: date} do
-    balance = Bookkeeping.account_balance(payable_vat, date)
-    assert balance == 240_00
+  test "payable vat", %{payable_vat: payable_vat} do
+    balance = Bookkeeping.account_balance(payable_vat)
+    assert balance == -240_00
   end
 
-  test "bank account", %{bank: bank, date: date} do
-    balance = Bookkeeping.account_balance(bank, date)
+  test "bank account", %{bank: bank} do
+    balance = Bookkeeping.account_balance(bank)
     assert balance == 290_00
   end
 
-  test "trade receivables", %{trade_receivables: trade_receivables, date: date} do
-    balance = Bookkeeping.account_balance(trade_receivables, date)
+  test "trade receivables", %{trade_receivables: trade_receivables} do
+    balance = Bookkeeping.account_balance(trade_receivables)
     assert balance == 0
   end
 
-  test "salaries", %{salaries: salaries, date: date} do
-    balance = Bookkeeping.account_balance(salaries, date)
+  test "salaries", %{salaries: salaries} do
+    balance = Bookkeeping.account_balance(salaries)
     assert balance == 950_00
   end
 end

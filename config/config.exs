@@ -1,9 +1,5 @@
-import Config
+use Mix.Config
 
 config :bookkeeping, ecto_repos: [Bookkeeping.Repo]
 
-config :bookkeeping, Bookkeeping.Repo,
-  database: "bookkeeping_repo",
-  username: "postgres",
-  password: "postgres",
-  hostname: System.get_env("DB_HOST")
+import_config "#{Mix.env()}.exs"

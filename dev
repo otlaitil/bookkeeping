@@ -45,7 +45,7 @@ _main() {
 			docker-compose run --rm dev "$@"
 			;;
 		test)
-			docker-compose run --rm dev mix test
+			docker-compose run -e MIX_ENV=test --rm dev iex -S mix test
 			;;
 		credo)
 			docker-compose run --rm dev mix credo
