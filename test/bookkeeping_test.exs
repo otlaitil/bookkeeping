@@ -1,34 +1,36 @@
 defmodule BookkeepingTest do
   use Bookkeeping.RepoCase
+  alias Bookkeeping.Factory
+
   doctest Bookkeeping
 
   setup do
-    {:ok, salaries} =
-      Bookkeeping.Repo.insert(%Bookkeeping.Account{
+    salaries =
+      Factory.insert!(:account, %{
         name: "Salaries",
         type: "expense"
       })
 
-    {:ok, sales} =
-      Bookkeeping.Repo.insert(%Bookkeeping.Account{
+    sales =
+      Factory.insert!(:account, %{
         name: "Sales",
         type: "revenue"
       })
 
-    {:ok, trade_receivables} =
-      Bookkeeping.Repo.insert(%Bookkeeping.Account{
+    trade_receivables =
+      Factory.insert!(:account, %{
         name: "Trade Receivables",
         type: "asset"
       })
 
-    {:ok, bank} =
-      Bookkeeping.Repo.insert(%Bookkeeping.Account{
+    bank =
+      Factory.insert!(:account, %{
         name: "Bank Account",
         type: "asset"
       })
 
-    {:ok, payable_vat} =
-      Bookkeeping.Repo.insert(%Bookkeeping.Account{
+    payable_vat =
+      Factory.insert!(:account, %{
         name: "Payable VAT",
         type: "liablity"
       })
