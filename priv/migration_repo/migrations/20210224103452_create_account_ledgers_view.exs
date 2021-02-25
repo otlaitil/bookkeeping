@@ -12,13 +12,7 @@ defmodule Bookkeeping.Repo.Migrations.CreateAccountLedgersView do
           SELECT
                   entries.credit_id,
                   entries.id,
-                  CASE WHEN accounts.type = 'asset' then
-                    (0 - entries.amount)
-                  WHEN accounts.type = 'expense' then
-                    (0 - entries.amount)
-                  ELSE
-                    entries.amount
-                  END
+                  (0 - entries.amount)
           FROM
                   app.entries
           INNER JOIN app.accounts
@@ -29,13 +23,7 @@ defmodule Bookkeeping.Repo.Migrations.CreateAccountLedgersView do
           SELECT
                   entries.debit_id,
                   entries.id,
-                  CASE WHEN accounts.type = 'asset' then
-                    entries.amount
-                  WHEN accounts.type = 'expense' then
-                    entries.amount
-                  ELSE
-                    (0 - entries.amount)
-                  END
+                  entries.amount
           FROM
                   app.entries
           INNER JOIN app.accounts

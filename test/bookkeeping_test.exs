@@ -77,12 +77,12 @@ defmodule BookkeepingTest do
 
   test "sales", %{sales: sales} do
     balance = Bookkeeping.account_balance(sales)
-    assert balance == 1000_00
+    assert balance == -1000_00
   end
 
   test "payable vat", %{payable_vat: payable_vat} do
     balance = Bookkeeping.account_balance(payable_vat)
-    assert balance == 240_00
+    assert balance == -240_00
   end
 
   test "bank account", %{bank: bank} do
