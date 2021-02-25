@@ -2,6 +2,7 @@ defmodule Bookkeeping.Entry do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @schema_prefix :app
   schema "entries" do
     belongs_to(:debit, Bookkeeping.Account)
     belongs_to(:credit, Bookkeeping.Account)

@@ -4,7 +4,7 @@ defmodule Bookkeeping.Repo.Migrations.CreateAccountLedgersView do
   def change do
     execute(
       """
-      CREATE VIEW account_ledgers(
+      CREATE VIEW app.account_ledgers(
           account_id,
           entry_id,
           amount
@@ -20,9 +20,9 @@ defmodule Bookkeeping.Repo.Migrations.CreateAccountLedgersView do
                     entries.amount
                   END
           FROM
-                  entries
-          INNER JOIN accounts
-          ON accounts.id = entries.credit_id
+                  app.entries
+          INNER JOIN app.accounts
+          ON accounts.id = app.entries.credit_id
 
           UNION ALL
 
@@ -37,9 +37,16 @@ defmodule Bookkeeping.Repo.Migrations.CreateAccountLedgersView do
                     (0 - entries.amount)
                   END
           FROM
-                  entries
-          INNER JOIN accounts
+                  app.entries
+          INNER JOIN app.accounts
           ON accounts.id = entries.debit_id;
+      """,
+      ""
+    )
+
+    execute(
+      """
+      GRANT ALL ON app.account_ledgers TO app;
       """,
       ""
     )

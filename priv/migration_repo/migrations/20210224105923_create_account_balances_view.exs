@@ -4,7 +4,7 @@ defmodule Bookkeeping.Repo.Migrations.CreateAccountBalancesView do
   def change do
     execute(
       """
-      CREATE MATERIALIZED VIEW account_balances(
+      CREATE MATERIALIZED VIEW app.account_balances(
               -- Materialized so financial reports run fast.
               -- Modification of accounts and entries will require a
               -- REFRESH MATERIALIZED VIEW, which we can trigger
@@ -16,26 +16,28 @@ defmodule Bookkeeping.Repo.Migrations.CreateAccountBalancesView do
               accounts.id,
               COALESCE(sum(account_ledgers.amount), 0)
       FROM
-              accounts
-              LEFT OUTER JOIN account_ledgers
+              app.accounts
+              LEFT OUTER JOIN app.account_ledgers
               ON accounts.id = account_ledgers.account_id
       GROUP BY accounts.id;
       """,
-      "DROP MATERIALIZED VIEW account_balances;"
+      "DROP MATERIALIZED VIEW app.account_balances;"
     )
 
-    create(index("account_balances", [:account_id], unique: true))
+    create(index("account_balances", [:account_id], unique: true, prefix: :app))
 
     execute(
       """
-      CREATE FUNCTION update_balances() RETURNS TRIGGER AS $$
+      CREATE FUNCTION update_balances() RETURNS TRIGGER
+      SECURITY DEFINER
+      AS $$
       BEGIN
-              REFRESH MATERIALIZED VIEW account_balances;
+              REFRESH MATERIALIZED VIEW app.account_balances;
               RETURN NULL;
       END
       $$ LANGUAGE plpgsql;
       """,
-      "DROP FUNCTION update_balances;"
+      "DROP FUNCTION app.update_balances;"
     )
 
     execute(
@@ -44,7 +46,7 @@ defmodule Bookkeeping.Repo.Migrations.CreateAccountBalancesView do
       AFTER INSERT
       OR UPDATE OF amount, credit_id, debit_id
       OR DELETE OR TRUNCATE
-      ON entries
+      ON app.entries
       FOR EACH STATEMENT
       EXECUTE PROCEDURE update_balances();
       """,
@@ -57,11 +59,18 @@ defmodule Bookkeeping.Repo.Migrations.CreateAccountBalancesView do
       AFTER INSERT
       OR UPDATE OF id
       OR DELETE OR TRUNCATE
-      ON accounts
+      ON app.accounts
       FOR EACH STATEMENT
       EXECUTE PROCEDURE update_balances();
       """,
-      "DROP TRIGGER trigger_fix_balance_accounts ON accounts;"
+      "DROP TRIGGER app.trigger_fix_balance_accounts ON accounts;"
+    )
+
+    execute(
+      """
+      GRANT ALL ON app.account_balances TO app;
+      """,
+      ""
     )
   end
 end

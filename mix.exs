@@ -33,8 +33,19 @@ defmodule Bookkeeping.MixProject do
 
   defp aliases do
     [
-      setup: ["roles", "ecto.create", "db_schemas"],
-      test: ["ecto.drop --quiet", "ecto.create --quiet", "ecto.migrate", "test"]
+      setup: [
+        "roles",
+        "ecto.create -r Bookkeeping.MigrationRepo",
+        "db_schemas",
+        "ecto.migrate -r Bookkeeping.MigrationRepo"
+      ],
+      test: [
+        "roles",
+        "ecto.create -r Bookkeeping.MigrationRepo",
+        "db_schemas",
+        "ecto.migrate -r Bookkeeping.MigrationRepo",
+        "test"
+      ]
     ]
   end
 
